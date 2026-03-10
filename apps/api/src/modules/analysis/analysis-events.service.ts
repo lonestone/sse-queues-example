@@ -6,6 +6,7 @@ import { AnalysisEvent } from './analysis.contract'
 export const ANALYSIS_UPDATED_EVENT = 'analysis-updated-event'
 
 export const ANALYSIS_STEPS = [
+  'processing',
   'extraction',
   'analysis-part-one',
   'analysis-part-two',

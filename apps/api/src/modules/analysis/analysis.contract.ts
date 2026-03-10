@@ -25,7 +25,7 @@ export type AnalysisJobData = z.infer<typeof analysisJobDataSchema>
 
 // Events
 export const analysisEventsSchema = z.object({
-  id: z.uuid(),
+  id: z.string(),
   step: z.enum([
     ANALYSIS_STEPS.EXTRACTION,
     ANALYSIS_STEPS.ANALYSIS_PART_ONE,

@@ -29,6 +29,7 @@ export function useAnalysisEvents() {
 
   useEffect(() => {
     const events = Array.isArray(streamedData) ? streamedData : []
+
     const from = lastProcessedLengthRef.current
     if (from >= events.length) {
       return

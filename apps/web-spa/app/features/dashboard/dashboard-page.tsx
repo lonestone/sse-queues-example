@@ -13,11 +13,11 @@ export default function DashboardPage() {
   const { mutate } = useStartAnalysis()
 
   return (
-    <main className="container mx-auto py-8 px-4 space-y-6">
+    <main className="container mx-auto py-8 px-4 space-y-6 flex flex-col items-center justify-center">
       <h1 className="text-3xl font-bold">Test SSE + queues</h1>
       {
         analyses?.map(analysis => (
-          <div key={analysis.id} className="flex flex-col rounded border-1 items-center w-80 rounded-lg gap-4 p-4">
+          <div key={analysis.id} className="flex flex-col rounded border-1 items-center w-80 h-50 justify-between rounded-lg gap-4 p-4">
             <div className="flex gap-2 items-baseline">
               <h2 className="text-3xl font-bold">
                 {

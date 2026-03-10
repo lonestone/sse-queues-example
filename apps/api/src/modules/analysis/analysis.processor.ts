@@ -28,7 +28,7 @@ export class AnalysisProcessor extends WorkerHost {
   async process(job: Job<AnalysisJobData>) {
     this.eventEmitter.emit(ANALYSIS_UPDATED_EVENT, { id: job.data.analysisId, step: ANALYSIS_STEPS.EXTRACTION })
 
-    await new Promise(resolve => setTimeout(resolve, 4000))
+    await (new Promise(resolve => setTimeout(resolve, 4000)))
 
     this.eventEmitter.emit(ANALYSIS_UPDATED_EVENT, { id: job.data.analysisId, step: ANALYSIS_STEPS.ANALYSIS_PART_ONE })
 
