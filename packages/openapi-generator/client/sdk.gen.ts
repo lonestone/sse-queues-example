@@ -2,50 +2,13 @@
 
 import type { Client, Options as Options2, TDataShape } from "./client";
 import { client } from "./client.gen";
-import { aiExampleControllerChatResponseTransformer } from "./transformers.gen";
 import type {
-  AiExampleControllerChatData,
-  AiExampleControllerChatResponses,
-  AiExampleControllerGenerateObjectData,
-  AiExampleControllerGenerateObjectResponses,
-  AiExampleControllerGenerateTextData,
-  AiExampleControllerGenerateTextResponses,
-  AiExampleControllerStreamChatData,
-  AiExampleControllerStreamChatResponses,
-  AiExampleControllerStreamObjectData,
-  AiExampleControllerStreamObjectResponses,
-  AiExampleControllerStreamTextData,
-  AiExampleControllerStreamTextResponses,
+  AnalysisControllerGetEventsData,
+  AnalysisControllerGetEventsResponses,
+  AnalysisControllerStartAnalyzeData,
+  AnalysisControllerStartAnalyzeResponses,
   AppControllerGetHelloData,
   AppControllerGetHelloResponses,
-  CommentsControllerCreateCommentData,
-  CommentsControllerCreateCommentResponses,
-  CommentsControllerDeleteCommentData,
-  CommentsControllerDeleteCommentResponses,
-  CommentsControllerGetCommentCountData,
-  CommentsControllerGetCommentCountResponses,
-  CommentsControllerGetCommentRepliesData,
-  CommentsControllerGetCommentRepliesResponses,
-  CommentsControllerGetCommentsData,
-  CommentsControllerGetCommentsResponses,
-  PostControllerCreatePostData,
-  PostControllerCreatePostResponses,
-  PostControllerGetUserPostData,
-  PostControllerGetUserPostResponses,
-  PostControllerGetUserPostsData,
-  PostControllerGetUserPostsResponses,
-  PostControllerPublishPostData,
-  PostControllerPublishPostResponses,
-  PostControllerUnpublishPostData,
-  PostControllerUnpublishPostResponses,
-  PostControllerUpdatePostData,
-  PostControllerUpdatePostResponses,
-  PublicPostControllerGetPostData,
-  PublicPostControllerGetPostResponses,
-  PublicPostControllerGetPostsData,
-  PublicPostControllerGetPostsResponses,
-  PublicPostControllerGetRandomPostData,
-  PublicPostControllerGetRandomPostResponses,
 } from "./types.gen";
 
 export type Options<
@@ -74,276 +37,24 @@ export const appControllerGetHello = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({ url: "/api", ...options });
 
-export const commentsControllerGetComments = <
+export const analysisControllerStartAnalyze = <
   ThrowOnError extends boolean = false,
 >(
-  options: Options<CommentsControllerGetCommentsData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    CommentsControllerGetCommentsResponses,
-    unknown,
-    ThrowOnError
-  >({ url: "/api/posts/{postSlug}/comments", ...options });
-
-export const commentsControllerCreateComment = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<CommentsControllerCreateCommentData, ThrowOnError>,
+  options: Options<AnalysisControllerStartAnalyzeData, ThrowOnError>,
 ) =>
   (options.client ?? client).post<
-    CommentsControllerCreateCommentResponses,
+    AnalysisControllerStartAnalyzeResponses,
     unknown,
     ThrowOnError
-  >({
-    url: "/api/posts/{postSlug}/comments",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
+  >({ url: "/api/analysis/{id}/analyze", ...options });
 
-export const commentsControllerGetCommentCount = <
+export const analysisControllerGetEvents = <
   ThrowOnError extends boolean = false,
 >(
-  options: Options<CommentsControllerGetCommentCountData, ThrowOnError>,
+  options?: Options<AnalysisControllerGetEventsData, ThrowOnError>,
 ) =>
-  (options.client ?? client).get<
-    CommentsControllerGetCommentCountResponses,
+  (options?.client ?? client).sse.get<
+    AnalysisControllerGetEventsResponses,
     unknown,
     ThrowOnError
-  >({ url: "/api/posts/{postSlug}/comments/count", ...options });
-
-export const commentsControllerGetCommentReplies = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<CommentsControllerGetCommentRepliesData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    CommentsControllerGetCommentRepliesResponses,
-    unknown,
-    ThrowOnError
-  >({ url: "/api/posts/{postSlug}/comments/{commentId}/replies", ...options });
-
-export const commentsControllerDeleteComment = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<CommentsControllerDeleteCommentData, ThrowOnError>,
-) =>
-  (options.client ?? client).delete<
-    CommentsControllerDeleteCommentResponses,
-    unknown,
-    ThrowOnError
-  >({ url: "/api/posts/{postSlug}/comments/{commentId}", ...options });
-
-export const postControllerGetUserPosts = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<PostControllerGetUserPostsData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    PostControllerGetUserPostsResponses,
-    unknown,
-    ThrowOnError
-  >({ url: "/api/admin/posts", ...options });
-
-export const postControllerCreatePost = <ThrowOnError extends boolean = false>(
-  options: Options<PostControllerCreatePostData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    PostControllerCreatePostResponses,
-    unknown,
-    ThrowOnError
-  >({
-    url: "/api/admin/posts",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-export const postControllerGetUserPost = <ThrowOnError extends boolean = false>(
-  options: Options<PostControllerGetUserPostData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    PostControllerGetUserPostResponses,
-    unknown,
-    ThrowOnError
-  >({ url: "/api/admin/posts/{id}", ...options });
-
-export const postControllerUpdatePost = <ThrowOnError extends boolean = false>(
-  options: Options<PostControllerUpdatePostData, ThrowOnError>,
-) =>
-  (options.client ?? client).put<
-    PostControllerUpdatePostResponses,
-    unknown,
-    ThrowOnError
-  >({
-    url: "/api/admin/posts/{id}",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-export const postControllerPublishPost = <ThrowOnError extends boolean = false>(
-  options: Options<PostControllerPublishPostData, ThrowOnError>,
-) =>
-  (options.client ?? client).patch<
-    PostControllerPublishPostResponses,
-    unknown,
-    ThrowOnError
-  >({ url: "/api/admin/posts/{id}/publish", ...options });
-
-export const postControllerUnpublishPost = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<PostControllerUnpublishPostData, ThrowOnError>,
-) =>
-  (options.client ?? client).patch<
-    PostControllerUnpublishPostResponses,
-    unknown,
-    ThrowOnError
-  >({ url: "/api/admin/posts/{id}/unpublish", ...options });
-
-export const publicPostControllerGetRandomPost = <
-  ThrowOnError extends boolean = false,
->(
-  options?: Options<PublicPostControllerGetRandomPostData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    PublicPostControllerGetRandomPostResponses,
-    unknown,
-    ThrowOnError
-  >({ url: "/api/public/posts/random", ...options });
-
-export const publicPostControllerGetPost = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<PublicPostControllerGetPostData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    PublicPostControllerGetPostResponses,
-    unknown,
-    ThrowOnError
-  >({ url: "/api/public/posts/{slug}", ...options });
-
-export const publicPostControllerGetPosts = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<PublicPostControllerGetPostsData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    PublicPostControllerGetPostsResponses,
-    unknown,
-    ThrowOnError
-  >({ url: "/api/public/posts", ...options });
-
-export const aiExampleControllerGenerateText = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<AiExampleControllerGenerateTextData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    AiExampleControllerGenerateTextResponses,
-    unknown,
-    ThrowOnError
-  >({
-    url: "/api/ai/generate-text",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-export const aiExampleControllerGenerateObject = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<AiExampleControllerGenerateObjectData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    AiExampleControllerGenerateObjectResponses,
-    unknown,
-    ThrowOnError
-  >({
-    url: "/api/ai/generate-object",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-export const aiExampleControllerChat = <ThrowOnError extends boolean = false>(
-  options: Options<AiExampleControllerChatData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    AiExampleControllerChatResponses,
-    unknown,
-    ThrowOnError
-  >({
-    responseTransformer: aiExampleControllerChatResponseTransformer,
-    url: "/api/ai/chat",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-export const aiExampleControllerStreamText = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<AiExampleControllerStreamTextData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    AiExampleControllerStreamTextResponses,
-    unknown,
-    ThrowOnError
-  >({
-    url: "/api/ai/stream-text",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-export const aiExampleControllerStreamObject = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<AiExampleControllerStreamObjectData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    AiExampleControllerStreamObjectResponses,
-    unknown,
-    ThrowOnError
-  >({
-    url: "/api/ai/stream-object",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-export const aiExampleControllerStreamChat = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<AiExampleControllerStreamChatData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    AiExampleControllerStreamChatResponses,
-    unknown,
-    ThrowOnError
-  >({
-    url: "/api/ai/stream-chat",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
+  >({ url: "/api/analysis/events", ...options });

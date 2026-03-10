@@ -1,16 +1,16 @@
 import { IncomingMessage, ServerResponse } from 'node:http'
 import { OpenTelemetryModule } from '@amplication/opentelemetry-nestjs'
+import { BullModule } from '@nestjs/bullmq'
 import { Module } from '@nestjs/common'
 import { ConfigModule as NestConfigModule } from '@nestjs/config'
 import { APP_FILTER } from '@nestjs/core'
 import { SentryGlobalFilter, SentryModule } from '@sentry/nestjs/setup'
 import { LoggerModule } from 'nestjs-pino'
 import { AppController } from './app.controller'
+import { config } from './config/env.config'
 import { AiModule } from './modules/ai/ai.module'
-import { AuthModule } from './modules/auth/auth.module'
-import { DbModule } from './modules/db/db.module'
+import { AnalysisModule } from './modules/analysis/analysis.module'
 import { EmailModule } from './modules/email/email.module'
-import { ExampleModule } from './modules/example/example.module'
 
 // Interface étendue pour les requêtes Express
 interface ExpressRequest extends IncomingMessage {
@@ -90,12 +90,16 @@ interface ExpressResponse extends ServerResponse<IncomingMessage> {
         },
       },
     }),
-    DbModule,
-    AuthModule,
+    BullModule.forRoot({
+      connection: {
+        host: config.redis.host,
+        port: config.redis.port,
+      },
+    }),
     EmailModule,
     AiModule,
     NestConfigModule,
-    ExampleModule,
+    AnalysisModule,
   ],
   controllers: [AppController],
   providers: [{

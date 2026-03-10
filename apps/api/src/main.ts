@@ -51,7 +51,7 @@ async function bootstrap() {
   )
 
   app.enableCors({
-    origin: config.betterAuth.trustedOrigins,
+    origin: 'http://localhost:5174',
     credentials: true,
   })
 

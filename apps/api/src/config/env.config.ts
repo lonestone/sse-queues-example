@@ -46,10 +46,6 @@ export const configValidationSchema = z.object({
   DATABASE_HOST: z.string(),
   DATABASE_PORT: z.coerce.number(),
 
-  // BetterAuth
-  BETTER_AUTH_SECRET: z.string(),
-  TRUSTED_ORIGINS: z.string().transform(val => val.split(',')),
-
   // Clients
   CLIENTS_WEB_APP_URL: z.string(),
   CLIENTS_WEB_SSR_URL: z.string(),
@@ -75,6 +71,10 @@ export const configValidationSchema = z.object({
 
   // Sentry
   SENTRY_DSN: z.string().optional(),
+
+  // Redis
+  REDIS_HOST: z.string().default('localhost'),
+  REDIS_PORT: z.coerce.number().default(6379),
 })
 
 export type ConfigSchema = z.infer<typeof configValidationSchema>
@@ -98,10 +98,6 @@ export const config = {
     port: configParsed.data.API_PORT,
   },
   version: getVersion(),
-  betterAuth: {
-    secret: configParsed.data.BETTER_AUTH_SECRET,
-    trustedOrigins: configParsed.data.TRUSTED_ORIGINS,
-  },
   database: {
     password: configParsed.data.DATABASE_PASSWORD,
     user: configParsed.data.DATABASE_USER,
@@ -149,5 +145,9 @@ export const config = {
   },
   sentry: {
     dsn: configParsed.data.SENTRY_DSN,
+  },
+  redis: {
+    host: configParsed.data.REDIS_HOST,
+    port: configParsed.data.REDIS_PORT,
   },
 } as const
