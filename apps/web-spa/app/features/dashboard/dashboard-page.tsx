@@ -1,5 +1,5 @@
 import { Button } from '@boilerstone/ui/components/primitives/button'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@boilerstone/ui/components/primitives/card'
+import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@boilerstone/ui/components/primitives/card'
 import { ANALYSIS_STEPS, AnalysisBadge } from '../analysis/components/analysis-badge'
 import { useAnalyses } from '../analysis/hooks/use-analysis'
 import { useAnalysisEvents } from '../analysis/hooks/use-analysis-events'
@@ -15,24 +15,7 @@ export default function DashboardPage() {
 
   return (
     <main className="container mx-auto py-8 px-4 space-y-6 flex flex-col items-center justify-center">
-      <h1 className="text-3xl font-bold">Test SSE + queues</h1>
-      {/* {
-        analyses?.map(analysis => (
-          <div key={analysis.id} className="flex flex-col rounded border-1 items-center w-80 h-50 justify-between rounded-lg gap-4 p-4">
-            <div className="flex gap-2 items-baseline">
-              <h2 className="text-3xl font-bold">
-                {
-                  analysis.id
-                }
-              </h2>
-              <AnalysisBadge step={analysis.step as ANALYSIS_STEPS} />
-            </div>
-            <button onClick={() => mutate({ id: analysis.id })} className="bg-primary text-black rounded-md p-2">
-              Start analysis
-            </button>
-          </div>
-        ))
-      } */}
+      <h1 className="text-3xl font-bold">Super projet : SSE + queues</h1>
       {
         analyses?.map(analysis => (
           <Card key={analysis.id} className="w-80 min-h-50 justify-between">
