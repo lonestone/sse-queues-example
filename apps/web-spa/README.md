@@ -17,7 +17,6 @@ This is the web frontend application of our project, built with modern React and
 - [TanStack Query](https://tanstack.com/query/latest) - Powerful asynchronous state management
 - [TanStack Table](https://tanstack.com/table/latest) - Headless UI for building powerful tables
 - [TanStack Form](https://tanstack.com/form/latest) - Powerful and type-safe form builder
-- [Better Auth](https://github.com/better-auth-io/better-auth) - Authentication and authorization solution
 
 ## Prerequisites
 

@@ -2,19 +2,16 @@
   <img src="./assets/logo-preview.webp" alt="Lonestone Logo" width="200">
 </p>
 
-# Boilerplate project
+# SSE + BullMQ queue demo
 
-This repository represents the typical project structure at Lonestone, consisting of an API and one to several frontends.
+Runnable example of **background jobs with [BullMQ](https://docs.bullmq.io/)** and **progress updates over [Server-Sent Events (SSE)](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events)** in a NestJS API consumed by a React SPA.
 
-To start a new project using this boilerplate, simply create a project on Github and select the boilerplate from the template list.
-
-For more details, see the [documentation](https://lonestone.github.io/lonestone-boilerplate/) or check out the local documentation in the `apps/documentation` folder.
-
-[![CI ✨](https://github.com/lonestone/lonestone-boilerplate/actions/workflows/ci.yml/badge.svg)](https://github.com/lonestone/lonestone-boilerplate/actions/workflows/ci.yml)
-[![Deploy documentation to GitHub Pages](https://github.com/lonestone/lonestone-boilerplate/actions/workflows/deploy-docs.yml/badge.svg)](https://github.com/lonestone/lonestone-boilerplate/actions/workflows/deploy-docs.yml)
+This repository is **based on the [Lonestone boilerplate](https://github.com/lonestone/lonestone-boilerplate)**. For the full stack template, tooling, and extended documentation, see that project and its [published docs](https://lonestone.github.io/lonestone-boilerplate/).
 
 ## 📋 Table of Contents
 
+- [About this demo](#-about-this-demo)
+- [How it works](#-how-it-works)
 - [Overview](#-overview)
 - [Tech Stack](#️-tech-stack)
 - [Project Structure](#-project-structure)
@@ -23,221 +20,152 @@ For more details, see the [documentation](https://lonestone.github.io/lonestone-
 - [Docker Services](#-docker-services)
 - [Useful Commands](#️-useful-commands)
 - [Development](#-development)
-- [Continuous Integration (CI)](#-continuous-integration-ci)
 - [Documentation](#-documentation)
-- [Deployment](#-deployment)
+
+## 🎯 About this demo
+
+This codebase is a **companion implementation** for two articles on **processing heavy tasks in Node.js**: it shows how to offload long-running work to a queue, run it in a worker, and **stream step-by-step progress** to the browser without blocking HTTP request/response cycles.
+
+The sample flow simulates an analysis pipeline (e.g. extraction → analysis → completed) and pushes named events over SSE so the client can update UI state in real time.
+
+## 🔄 How it works
+
+At a high level: the client keeps an SSE connection open, enqueues work with a normal HTTP POST, and receives events as the worker advances.
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant API
+    participant Queue
+    participant Worker
+
+    Client->>API: Ouvre /events (SSE)
+    API-->>Client: Flux SSE ouvert
+
+    Client->>API: POST /analyze
+    API->>Queue: Ajoute un job
+    API-->>Client: 200 OK
+
+    Queue->>Worker: Traite le job
+    Worker->>Worker: Étape 1 (extraction)
+    Worker-->>API: Émet événement "extraction"
+    API-->>Client: SSE → extraction
+
+    Worker->>Worker: Étape 2 (analyse)
+    Worker-->>API: Émet événement "analyse"
+    API-->>Client: SSE → analyse
+
+    Worker->>Worker: Terminé
+    Worker-->>API: Émet événement "completed"
+    API-->>Client: SSE → completed
+```
+
+**Concrete routes in this repo** (global API prefix `/api`):
+
+- `GET /api/analysis/events` — SSE stream of analysis updates  
+- `POST /api/analysis/:id/analyze` — enqueue a job for the given id  
+
+The worker emits progress; the API forwards it to subscribers on the SSE channel (see `apps/api/src/modules/analysis/`).
 
 ## 🔍 Overview
 
-This project uses a "monorepo" architecture. The advantages are numerous, but primarily:
-
-- Ability to develop full-stack features without context switching, making a single PR for a complete feature;
-- Easier deployment: no need to synchronize multiple separate deployments;
-- Strong end-to-end typing, easier refactoring;
-- Simplified and unified tooling (linter, build, etc.)
+The repo is a **pnpm monorepo**: a NestJS API, a Vite + React SPA, and shared packages (OpenAPI client, UI, i18n). Redis backs BullMQ; there is no database requirement for this demo’s queue/SSE path.
 
 ## 🛠️ Tech Stack
 
-See the [Architecture](apps/documentation/src/content/docs/explanations/1_architecture.mdx) page for more details.
+- **API**: NestJS, BullMQ, Zod, OpenAPI / Nzoth  
+- **Frontend**: React, React Router, TanStack Query, Tailwind CSS  
+- **Infrastructure (local)**: Redis via Docker Compose  
+
+For broader architectural patterns from the upstream template, see the [Lonestone boilerplate](https://github.com/lonestone/lonestone-boilerplate) and its documentation.
 
 ## 📁 Project Structure
 
-See the [Project Structure](apps/documentation/src/content/docs/explanations/1_architecture.mdx) page for more details.
+| Path | Role |
+|------|------|
+| `apps/api` | NestJS API, BullMQ queue + worker processor, SSE endpoint |
+| `apps/web-spa` | SPA: opens SSE, starts analysis, displays live steps |
+| `packages/openapi-generator` | Generated types and client (including SSE helpers) |
+| `packages/ui` | Shared UI components |
+| `packages/i18n` | Shared i18n utilities |
 
 ## 📋 Prerequisites
 
-- [Node.js](https://nodejs.org/) (version 24.13.0)
-- [PNPM](https://pnpm.io/) (version 10.28.2)
-- [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/)
+- [Node.js](https://nodejs.org/) (see `engines` in root `package.json`, e.g. 24.13.0)
+- [pnpm](https://pnpm.io/) (version pinned in `package.json` → `packageManager`)
+- [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) for Redis
 
 ## 🚀 Installation
 
-1. Once your project is created with this template, clone the repository
+1. Clone the repository and enter the project root.
+
+2. Use the Node and pnpm versions expected by the repo (e.g. with [fnm](https://github.com/Schniz/fnm)):
 
 ```bash
-git clone https://github.com/lonestone/yourproject.git
-cd yourproject
-```
-
-2. Ensure you have the correct node and pnpm versions (see root `package.json` file's `engines` property).
-
-You can use [fnm](https://github.com/Schniz/fnm) for managing your node version
-
-```bash
-fnm use 24.13.0
-npm i -g pnpm@10.28.2
-```
-
-3. Install dependencies:
-
-```bash
+fnm use
+corepack enable
 pnpm install
 ```
 
-4. Run the setup script
-
-The project includes an automated setup script that will:
-- Detect available applications (API, Web SPA, Web SSR, OpenAPI Generator)
-- Prompt you for database configuration (user, password, name, host, port)
-- Prompt you for application ports
-- Configure SMTP settings (MailDev)
-- Copy and configure all `.env` files automatically
-- Optionally start Docker services (database, MailDev)
-- Optionally run database migrations
-
-```bash
-pnpm rock
-```
-
-The script will guide you through the configuration process interactively. It will:
-- Ask for your project name
-- Update package.json files for detected applications with the project name
-- Check for existing `.env` files and only prompt for missing variables
-- Automatically update all `.env` files with your configuration
-- Set up proper API URLs and trusted origins across all applications
-
-5. Start applications in development mode:
-
-```bash
-pnpm dev
-```
-
-### Manual Setup (Alternative)
-
-If you prefer to configure everything manually:
-
-1. Copy environment files:
+3. Copy environment examples and adjust ports/origins if needed:
 
 ```bash
 cp .env.example .env
 cp apps/api/.env.example apps/api/.env
 cp apps/web-spa/.env.example apps/web-spa/.env
-cp apps/web-ssr/.env.example apps/web-ssr/.env
 cp packages/openapi-generator/.env.example packages/openapi-generator/.env
 ```
 
-⚠️ In most of those `.env` files, the API url and port are used. Remember to update all the files to match your API url and port.
+Align `CLIENTS_WEB_APP_URL`, `TRUSTED_ORIGINS`, and `VITE_API_URL` with the URL your SPA actually uses in dev.
 
-2. Start Docker services:
+4. Start **Redis**:
 
 ```bash
 pnpm docker:up
 ```
 
-3. Run migrations or set up your schema by following the instructions in the [API README](apps/api/README.md).
+5. Start apps in development:
+
+```bash
+pnpm dev
+```
+
+See [apps/api/README.md](apps/api/README.md) and [apps/web-spa/README.md](apps/web-spa/README.md) for app-specific details.
 
 ## 🐳 Docker Services
 
-The project uses Docker Compose to provide the following services:
+Compose currently provides:
 
-- PostgreSQL - Database server
-- MailDev - SMTP server for development (not to be used in production!)
-- MinIO - S3 compatible storage solution (not to be used in production!)
+- **Redis** — broker/backing store for BullMQ (`REDIS_PORT` in `.env` maps to container `6379`).
 
 ## ⌨️ Useful Commands
 
 ### Docker
 
-- **Start Docker services**: `pnpm docker:up`
-- **Stop Docker services**: `pnpm docker:down`
-- **View Docker logs**: `pnpm docker:logs`
+- **Start**: `pnpm docker:up`
+- **Stop**: `pnpm docker:down`
+- **Logs**: `pnpm docker:logs`
 
 ### Development
 
-- **Start development**: `pnpm dev`
-- **Build applications**: `pnpm build`
-- **Lint applications**: `pnpm lint`
-- **Generate OpenAPI clients**: `pnpm generate`
-
-### Database (API)
-
-- **Create migration**: `pnpm db:migrate:create`
-- **Run migrations**: `pnpm db:migrate:up`
-- **Rollback last migration**: `pnpm db:migrate:down`
-- **Initialize data**: `pnpm db:seed`
-
-### Tests
-
-- **Run tests**: `pnpm test`
+- **All apps (parallel)**: `pnpm dev`
+- **API only**: `pnpm --filter=api dev`
+- **Web SPA only**: `pnpm --filter=web-spa dev`
+- **Build**: `pnpm build`
+- **Lint**: `pnpm lint`
+- **OpenAPI client**: `pnpm generate`
+- **Tests**: `pnpm test`
 
 ## 💻 Development
 
-### Applications
+- **API** — NestJS module `analysis`: controller (SSE + enqueue), service, BullMQ processor, event bridge to SSE subscribers. OpenAPI UI in development: `http://localhost:<API_PORT>/api/docs`.
+- **Web SPA** — Analysis feature hooks/components consume the SSE stream and trigger `POST .../analyze`.
 
-- The API is built with NestJS and provides a REST API. See the [API README](apps/api/README.md) for more information.
-- The web-spa is built with React and provides a single-page application. See the [Web SPA README](apps/web-spa/README.md) for more information.
-- The web-ssr is built with React and provides a server-side rendered application. See the [Web SSR README](apps/web-ssr/README.md) for more information.
-
-You can start each application in development mode with the following commands:
-
-```bash
-# Start API in development mode from root folder
-pnpm --filter=api dev
-```
-
-```bash
-# Start API from its own folder
-cd apps/api && pnpm dev
-```
-
-### Shared Packages
-
-- UI -> Reusable UI components built with shadcn/ui.
-- OpenAPI Generator -> contains the generator plus the generated types, validators and sdk for frontend-backend communication. Imported by the frontend apps.
-
-## 🔄 Continuous Integration (CI)
-
-The project uses GitHub Actions for continuous integration. Workflows are defined in the `.github/workflows/` folder.
-
-### CI Workflow
-
-The CI workflow (`ci.yml`) runs on every push to the `main` and `master` branches, as well as on pull requests to these branches.
-
-It includes the following jobs:
-
-- **Lint**: Checks code with ESLint
-- **Type Check**: Checks TypeScript types for all packages and applications
-- **Build**: Builds all packages and applications
-
-For more information, see the [GitHub Actions documentation](.github/ACTIONS.md).
-
-### AI Agents good practice
-When working with an AI Agent (such as Copilot, Cursor or Claude), please follow these guidelines:
-
-- Do not add rules to the repo. You are encouraged to create your own so that it benefits several projects.
-- If the agent needs markdown documents (like specifications or TODO task), write them in a dedicated folder in docs/features
+Shared API types and client live under `packages/openapi-generator` after generation.
 
 ## 📚 Documentation
 
-Project documentation is available in the `docs/` folder and in app `README`s. It contains information about architecture, coding conventions, and development guides.
-
-This documentation is also used by our custom cursor rules.
-
-- [General Guidelines](apps/documentation/src/content/docs/references/general.mdx)
-- [Frontend Guidelines](apps/documentation/src/content/docs/references/frontend.mdx)
-- [Backend Guidelines](apps/documentation/src/content/docs/references/backend.mdx)
-- [API Readme](apps/api/README.md)
-- [Frontend Readme](apps/web-spa/README.md)
-
-The `docs/features` directory should contain a list of folder for each new features. In those you can write specification document and TODO tasks for a feature you are implementing. Feature specefications can can also point toward README.md files inside the packages' features, that should provide more details about the implementation within the scope of the package.
-
-## 🚀 Deployment
-
-It's your choice to decide how you want to deploy the applications, your main options being:
-
-- Use a PaaS cloud service like Render or Dokploy which will build and host your services
-- Build the applications, via Docker, and publish their image on a registry to be used by Render or other PaaS
-- Use docker-compose (not recommended).
-
-### Building with Docker
-
-#### Prerequisites
-
-- Docker installed on your machine
-- Node.js and pnpm for local development
-
-See the dedicated README files for more details on how to build and run Docker images.
-
-### Deployment with Docker Compose
-
-An example Docker Compose configuration is available in the `docker-compose.yml` file at the project root.
+- [Lonestone boilerplate](https://github.com/lonestone/lonestone-boilerplate) — upstream template this demo is derived from  
+- [Boilerplate documentation site](https://lonestone.github.io/lonestone-boilerplate/)  
+- [API README](apps/api/README.md)  
+- [Web SPA README](apps/web-spa/README.md)  
