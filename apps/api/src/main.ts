@@ -3,27 +3,15 @@ import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder } from '@nestjs/swagger'
 import { apiReference } from '@scalar/nestjs-api-reference'
 import * as express from 'express'
-import { Logger, LoggerErrorInterceptor } from 'nestjs-pino'
 import { AppModule } from './app.module'
 import { config } from './config/env.config'
-import { initSharedTracerProvider } from './instrument'
 
 const PREFIX = '/api'
 
 async function bootstrap() {
-  // Init tracing
-  initSharedTracerProvider()
-
   const app = await NestFactory.create(AppModule, {
     bodyParser: false,
   })
-
-  // Use Pino logger
-  app.useLogger(app.get(Logger))
-
-  // Adding error details to the logs
-  // https://github.com/iamolegga/nestjs-pino?tab=readme-ov-file#expose-stack-trace-and-error-class-in-err-property
-  app.useGlobalInterceptors(new LoggerErrorInterceptor())
 
   // Registering custom exception filter for the Nzoth package
   app.useGlobalFilters(

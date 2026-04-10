@@ -2,9 +2,40 @@ import { AsyncLocalStorage } from 'node:async_hooks'
 import { randomBytes } from 'node:crypto'
 import { INestApplication } from '@nestjs/common'
 import { NextFunction, Request, Response } from 'express'
-import { BetterAuthSession } from 'src/config/better-auth.config'
 import supertest from 'supertest'
-import { User } from '../../modules/auth/auth.entity'
+
+/** Minimal user shape for building mock Better Auth sessions in tests. */
+export interface TestAuthUser {
+  id: string
+  email: string
+  name: string
+  emailVerified: boolean
+  createdAt: Date
+  updatedAt: Date
+  image?: string | null
+}
+
+/** Session shape aligned with better-auth for e2e mocks. */
+export type BetterAuthSession = {
+  session: {
+    id: string
+    token: string
+    userId: string
+    expiresAt: Date
+    createdAt: Date
+    updatedAt: Date
+    ipAddress: string
+  }
+  user: {
+    id: string
+    email: string
+    name: string
+    emailVerified: boolean
+    createdAt: Date
+    updatedAt: Date
+    image: string | null
+  }
+}
 
 /** Session scoped to the current request (enables parallel tests). Fallback: global _session when no header. */
 export const testSessionStorage = new AsyncLocalStorage<BetterAuthSession>()
@@ -28,7 +59,7 @@ export interface MockAuthService {
  * Uses useValue (not useClass) so it does not depend on MODULE_OPTIONS_TOKEN injection.
  */
 export function createMockAuthService(): MockAuthService {
-  let _session: BetterAuthSession = null
+  let _session: BetterAuthSession | null = null
 
   return {
     api: {
@@ -78,7 +109,7 @@ export function testSessionMiddleware(req: Request, res: Response, next: NextFun
  * @param user The user entity to create a session for
  * @returns A BetterAuthSession object
  */
-export function createSessionFromUser(user: User): BetterAuthSession {
+export function createSessionFromUser(user: TestAuthUser): BetterAuthSession {
   return {
     session: {
       id: `test-session-${user.id}`,

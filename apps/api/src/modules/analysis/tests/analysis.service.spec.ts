@@ -1,4 +1,6 @@
+import { getQueueToken } from '@nestjs/bullmq'
 import { Test, TestingModule } from '@nestjs/testing'
+import { ANALYSIS_QUEUE_NAME } from '../analysis.processor'
 import { AnalysisService } from '../analysis.service'
 
 describe('analysisService', () => {
@@ -6,7 +8,10 @@ describe('analysisService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [AnalysisService],
+      providers: [
+        AnalysisService,
+        { provide: getQueueToken(ANALYSIS_QUEUE_NAME), useValue: { add: vi.fn() } },
+      ],
     }).compile()
 
     service = module.get<AnalysisService>(AnalysisService)

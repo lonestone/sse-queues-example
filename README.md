@@ -221,17 +221,6 @@ This documentation is also used by our custom cursor rules.
 
 The `docs/features` directory should contain a list of folder for each new features. In those you can write specification document and TODO tasks for a feature you are implementing. Feature specefications can can also point toward README.md files inside the packages' features, that should provide more details about the implementation within the scope of the package.
 
-## 🔍 Tracing Architecture
-
-The project uses a unified OpenTelemetry tracing architecture that integrates both Sentry and Langfuse:
-
-- **Shared TracerProvider**: A single OpenTelemetry TracerProvider manages traces for both Sentry (application monitoring) and Langfuse (AI/LLM tracing)
-- **Distributed Tracing**: Traces are automatically propagated across services, allowing you to see the full request flow
-- **AI Tracing**: All AI/LLM calls are automatically traced in Langfuse with full prompt visibility, token usage, and latency metrics
-- **Application Tracing**: All application spans (controllers, services, database queries) are traced in Sentry for performance monitoring and error tracking
-
-The tracing system is initialized in `apps/api/src/instrument.ts` and automatically started when the API server boots. See the [AI module documentation](apps/api/src/modules/ai/README.md) and [tracing documentation](apps/documentation/src/content/docs/core-features/2_monitoring.mdx) for more details.
-
 ## 🚀 Deployment
 
 It's your choice to decide how you want to deploy the applications, your main options being:

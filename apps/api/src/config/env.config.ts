@@ -39,13 +39,6 @@ export const configValidationSchema = z.object({
   API_BASE_URL: z.url(),
   API_PORT: z.coerce.number(),
 
-  // Database
-  DATABASE_PASSWORD: z.string(),
-  DATABASE_USER: z.string(),
-  DATABASE_NAME: z.string(),
-  DATABASE_HOST: z.string(),
-  DATABASE_PORT: z.coerce.number(),
-
   // Clients
   CLIENTS_WEB_APP_URL: z.string(),
   CLIENTS_WEB_SSR_URL: z.string(),
@@ -68,9 +61,6 @@ export const configValidationSchema = z.object({
   LANGFUSE_SECRET_KEY: z.string().optional(),
   LANGFUSE_PUBLIC_KEY: z.string().optional(), // Optional
   LANGFUSE_BASE_URL: z.string().optional(), // Optional, defaults to cloud
-
-  // Sentry
-  SENTRY_DSN: z.string().optional(),
 
   // Redis
   REDIS_HOST: z.string().default('localhost'),
@@ -98,14 +88,6 @@ export const config = {
     port: configParsed.data.API_PORT,
   },
   version: getVersion(),
-  database: {
-    password: configParsed.data.DATABASE_PASSWORD,
-    user: configParsed.data.DATABASE_USER,
-    name: configParsed.data.DATABASE_NAME,
-    host: configParsed.data.DATABASE_HOST,
-    port: configParsed.data.DATABASE_PORT,
-    connectionStringUrl: `postgresql://${configParsed.data.DATABASE_USER}:${configParsed.data.DATABASE_PASSWORD}@${configParsed.data.DATABASE_HOST}:${configParsed.data.DATABASE_PORT}/${configParsed.data.DATABASE_NAME}`,
-  },
   email: {
     host: configParsed.data.EMAIL_HOST,
     port: configParsed.data.EMAIL_PORT,
@@ -142,9 +124,6 @@ export const config = {
         apiKey: configParsed.data.MISTRAL_API_KEY,
       },
     },
-  },
-  sentry: {
-    dsn: configParsed.data.SENTRY_DSN,
   },
   redis: {
     host: configParsed.data.REDIS_HOST,

@@ -59,7 +59,6 @@ export default defineConfig({
             resolve(__dirname, './src/test/setup/test.setup.ts'),
             resolve(__dirname, './src/test/setup/test.e2e-setup.ts'),
           ],
-          // Container startup (PostgreSQL via testcontainers) can take >10s in CI
           hookTimeout: 60000,
         },
       },
