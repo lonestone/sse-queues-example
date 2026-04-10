@@ -13,7 +13,6 @@
     "pnpm": "10.28.2"
   },
   "scripts": {
-    "rock": "tsx ./cli/setup.ts",
     "dev": "pnpm --parallel dev",
     "build": "pnpm -r build",
     "typecheck": "pnpm -r typecheck",
